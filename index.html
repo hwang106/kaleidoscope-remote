@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kaleidoscope Remote</title>
+<meta name="theme-color" content="#222a3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KScope Remote">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+  :root { --navy: #222a3a; --orange: #ff9f43; --ink: #1d2433; --muted: #667085; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: #f4f5f8; }
+  header { background: var(--navy); color: #fff; padding: calc(14px + env(safe-area-inset-top)) 18px 14px; display: flex; align-items: center; gap: 12px; }
+  header img { width: 44px; height: 44px; border-radius: 10px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header span { color: #ffb067; }
+  main { max-width: 520px; margin: 0 auto; padding: 18px; }
+  .open { display: block; width: 100%; text-align: center; padding: 16px; border-radius: 14px; background: var(--orange); color: #fff; font-weight: 700; font-size: 18px; text-decoration: none; border: 0; }
+  .card { background: #fff; border: 1px solid #d9dee7; border-radius: 14px; padding: 14px 16px; margin-top: 16px; }
+  .card h2 { font-size: 16px; margin: 0 0 6px; }
+  .card ol { margin: 0; padding-left: 20px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  #launching { display: none; text-align: center; padding: 60px 20px; color: var(--muted); }
+  .standalone #launching { display: block; }
+  .standalone #home { display: none; }
+</style>
+<script>
+  /* Opened from the home-screen icon: go straight to the remote. Opened in a browser: show install steps. */
+  var REMOTE = 'https://script.google.com/a/macros/kippnyc.org/s/AKfycbxixF0Tm7CYOIW-ELN05GnMStZVrmVFYQvNfDelE0MUcUzMYWqpiRccq0IcIn0SU8ed5w/exec?view=remote';
+  var installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true ||
+    /[?&]source=pwa/.test(location.search);
+  if (installed) {
+    document.documentElement.className = 'standalone';
+    location.replace(REMOTE);
+  }
+</script>
+</head>
+<body>
+<header><img src="icons/icon-192.png" alt=""><h1><span>Kaleidoscope</span> Remote</h1></header>
+<div id="launching">Opening the remote…<br><br><a href="#" onclick="location.replace(REMOTE);return false">Tap here if it does not open</a></div>
+<main id="home">
+  <a class="open" id="openBtn" href="#">Open the remote</a>
+  <p class="muted">Sign in with your KIPP NYC teacher account. Take attendance, randomize, fix groups, swap students and put the seating chart on the board from your phone.</p>
+  <button class="open" id="installBtn" style="display:none;background:#222a3a;margin-top:12px">Install on this phone</button>
+  <div class="card">
+    <h2>Add it to your home screen</h2>
+    <p class="muted" style="margin:0 0 6px"><b>Android (Chrome):</b></p>
+    <ol class="muted"><li>Tap the ⋮ menu.</li><li>Tap <b>Add to Home screen</b> or <b>Install app</b>.</li></ol>
+    <p class="muted" style="margin:10px 0 6px"><b>iPhone (Safari):</b></p>
+    <ol class="muted"><li>Tap the Share button.</li><li>Tap <b>Add to Home Screen</b>.</li></ol>
+    <p class="muted" style="margin:10px 0 0">The orange butterfly icon opens straight to the remote.</p>
+  </div>
+</main>
+<script>
+  document.getElementById('openBtn').href = REMOTE;
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    document.getElementById('installBtn').style.display = 'block';
+  });
+  document.getElementById('installBtn').addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred = null;
+    this.style.display = 'none';
+  });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+</script>
+</body>
+</html>
